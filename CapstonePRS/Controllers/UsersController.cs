@@ -88,5 +88,18 @@ namespace CapstonePRS.Controllers {
         private bool UserExists(int id) {
             return _context.Users.Any(e => e.Id == id);
         }
+
+        public User Login(string username, string password) {
+            try {
+                return _context.Users.SingleOrDefault(u => u.Username == username && u.Password == password);
+            } catch (ArgumentNullException ex) {
+                throw new Exception("Cannot be null", ex);
+            }catch (InvalidOperationException ex) {
+                throw new Exception("Invalid username or password", ex);
+            }catch (Exception) {
+                throw;
+            }
+
+        }
     }
 }
