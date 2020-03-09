@@ -52,6 +52,7 @@ namespace CapstonePRS.Controllers
             {
                 return BadRequest();
             }
+            if (requestLine.Quantity < 1) throw new Exception("Quantity must be greater than 0");
 
             _context.Entry(requestLine).State = EntityState.Modified;
 
@@ -78,8 +79,9 @@ namespace CapstonePRS.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<RequestLine>> PostRequestLine(RequestLine requestLine)
-        {
+        public async Task<ActionResult<RequestLine>> PostRequestLine(RequestLine requestLine) {
+            if (requestLine.Quantity < 1) throw new Exception("Quantity must be greater than 0");
+
             _context.RequestLines.Add(requestLine);
             await _context.SaveChangesAsync();
 
@@ -105,6 +107,13 @@ namespace CapstonePRS.Controllers
         private bool RequestLineExists(int id)
         {
             return _context.RequestLines.Any(e => e.Id == id);
+        }
+
+        private void RecalcRequestTotal(int requestId) {
+            var request = _context.Requests.Find(requestId);
+            var total = request.RequestLines.Sum(x => x.Quantity * x.Product.Price);
+            request.Total = total;
+            _context.SaveChanges();
         }
     }
 }

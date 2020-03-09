@@ -10,8 +10,8 @@ namespace CapstonePRS.Models {
         public string Justification { get; set; }
         public string RejectionReason { get; set; }
         public string DeliveryMode { get; set; }
-        public string Status { get; set; }
-        public decimal Total { get; set; }
+        internal string Status { get; set; }
+        internal decimal Total { get; set; }
         public int UserId { get; set; }
         public virtual User User { get; set; }
         public virtual List<RequestLine> RequestLines { get; set; }

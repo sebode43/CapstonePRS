@@ -89,6 +89,7 @@ namespace CapstonePRS.Controllers {
             return _context.Users.Any(e => e.Id == id);
         }
 
+        //if errors occur may need to be async and will have to create a var with await in it
         public User Login(string username, string password) {
             try {
                 return _context.Users.SingleOrDefault(u => u.Username == username && u.Password == password);
