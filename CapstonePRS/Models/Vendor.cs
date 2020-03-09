@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace CapstonePRS.Models {
@@ -14,7 +15,8 @@ namespace CapstonePRS.Models {
         public string Zip { get; set; }
         public string Phone { get; set; }
         public string Email { get; set; }
-
+        [JsonIgnore]
+        public virtual List<Product> Products { get; set; }
         public Vendor() { }
     }
 }
