@@ -59,6 +59,7 @@ namespace CapstonePRS.Controllers
             try
             {
                 await _context.SaveChangesAsync();
+                RecalcRequestTotal(requestLine.RequestId);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -83,6 +84,7 @@ namespace CapstonePRS.Controllers
             if (requestLine.Quantity < 1) throw new Exception("Quantity must be greater than 0");
 
             _context.RequestLines.Add(requestLine);
+            RecalcRequestTotal(requestLine.RequestId);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetRequestLine", new { id = requestLine.Id }, requestLine);
@@ -99,6 +101,7 @@ namespace CapstonePRS.Controllers
             }
 
             _context.RequestLines.Remove(requestLine);
+            RecalcRequestTotal(requestLine.RequestId);
             await _context.SaveChangesAsync();
 
             return requestLine;
@@ -111,9 +114,11 @@ namespace CapstonePRS.Controllers
 
         private void RecalcRequestTotal(int requestId) {
             var request = _context.Requests.Find(requestId);
-            var total = request.RequestLines.Sum(x => x.Quantity * x.Product.Price);
+            var lines = _context.RequestLines.Where(rl => rl.RequestId == requestId);
+            var total = lines.Sum(rl => rl.Quantity * rl.Product.Price);
             request.Total = total;
             _context.SaveChanges();
+        }
         }
     }
 }

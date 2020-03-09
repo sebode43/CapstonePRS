@@ -90,6 +90,8 @@ namespace CapstonePRS.Controllers {
         }
 
         //if errors occur may need to be async and will have to create a var with await in it
+
+        [HttpGet(("login/{username}"))]
         public User Login(string username, string password) {
             try {
                 return _context.Users.SingleOrDefault(u => u.Username == username && u.Password == password);

@@ -89,46 +89,38 @@ namespace CapstonePRS.Controllers {
             return _context.Requests.Any(e => e.Id == id);
         }
 
-        public const string StatusNew = "NEW";
-        public const string StatusEdit = "EDIT";
+
         public const string StatusReview = "REVIEW";
         public const string StatusApproved = "APPROVED";
         public const string StatusRejected = "REJECTED";
 
-        public Task<IActionResult> Review(Request request) {
+        [HttpPost("review")]
+        public Task<ActionResult<Request>> Review(Request request) {
             if (request.Total <= 50) {
                 request.Status = StatusApproved;
             } else {
                 request.Status = StatusReview;
             }
-            return PutRequest(request.Id, request);
+            return PostRequest(request);
         }
-        public Task<IActionResult> Approve(Request request) {
+        [HttpPost("approve")]
+        public Task<ActionResult<Request>> Approve(Request request) {
             request.Status = StatusApproved;
-            return PutRequest(request.Id, request);
+            return PostRequest(request);
         }
-        public Task<IActionResult> Reject(Request request) {
+        [HttpPost("reject")]
+        public Task<ActionResult<Request>> Reject(Request request) {
             request.Status = StatusRejected;
-            return PutRequest(request.Id, request);
+            if (request.RejectionReason == null) throw new Exception("Cannot be null");
+            return PostRequest(request);
         }
-        public bool RejectReasonRequired(Request request) {
+        /* public bool RejectReasonRequired(Request request) {
             var status = request.Status == StatusRejected;
             return request.RejectionReason != null;
-        }
+        } */
+        [HttpGet("reviews/{id}")]
         public IEnumerable<Request> GetReviewsNotOwn(int userID) {
             return _context.Requests.Where(r => r.UserId != userID && r.Status == StatusReview).ToList();
         }
-        public User SetUserId(int userId) {
-            try {
-                return _context.Users.SingleOrDefault(x => x.Id == userId);
-            } catch (ArgumentNullException ex) {
-                throw new Exception("Cannot be null", ex);
-            }catch (InvalidOperationException ex) {
-                throw new Exception("Invalid username or password", ex);
-            }catch (Exception) {
-                throw;
-            }
-        }
-
     }
 }
