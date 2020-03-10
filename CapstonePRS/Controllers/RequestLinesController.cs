@@ -12,12 +12,10 @@ namespace CapstonePRS.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class RequestLinesController : ControllerBase
-    {
+    public class RequestLinesController : ControllerBase {
         private readonly CapstonePRSContext _context;
 
-        public RequestLinesController(CapstonePRSContext context)
-        {
+        public RequestLinesController(CapstonePRSContext context) {
             _context = context;
         }
 
@@ -27,19 +25,16 @@ namespace CapstonePRS.Controllers
 
         // GET: api/RequestLines
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<RequestLine>>> GetRequestLine()
-        {
+        public async Task<ActionResult<IEnumerable<RequestLine>>> GetRequestLine() {
             return await _context.RequestLines.ToListAsync();
         }
 
         // GET: api/RequestLines/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<RequestLine>> GetRequestLine(int id)
-        {
+        public async Task<ActionResult<RequestLine>> GetRequestLine(int id) {
             var requestLine = await _context.RequestLines.FindAsync(id);
 
-            if (requestLine == null)
-            {
+            if (requestLine == null) {
                 return NotFound();
             }
 
@@ -87,11 +82,9 @@ namespace CapstonePRS.Controllers
 
         // DELETE: api/RequestLines/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<RequestLine>> DeleteRequestLine(int id)
-        {
+        public async Task<ActionResult<RequestLine>> DeleteRequestLine(int id) {
             var requestLine = await _context.RequestLines.FindAsync(id);
-            if (requestLine == null)
-            {
+            if (requestLine == null) {
                 return NotFound();
             }
 
@@ -102,8 +95,7 @@ namespace CapstonePRS.Controllers
             return requestLine;
         }
 
-        private bool RequestLineExists(int id)
-        {
+        private bool RequestLineExists(int id) {
             return _context.RequestLines.Any(e => e.Id == id);
         }
 
@@ -115,13 +107,5 @@ namespace CapstonePRS.Controllers
             _context.SaveChanges();
         }
 
-        public string StatusApproved = "APPROVED";
-
-        [HttpGet("PO")]
-        public Task<ActionResult<IEnumerable<RequestLine>>> CreatePO() {
-            var approved = _context.RequestLines.Where(r => r.Request.Status == StatusApproved).ToList();
-            var price = approved.Sum(a => a.Product.Price * a.Quantity * .30);
-
-        }
     }
 }

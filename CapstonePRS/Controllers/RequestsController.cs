@@ -122,6 +122,15 @@ namespace CapstonePRS.Controllers {
         public IEnumerable<Request> GetReviewsNotOwn(int userID) {
             return _context.Requests.Where(r => r.UserId != userID && r.Status == StatusReview).ToList();
         }
-        
+        [HttpGet("PO/{vendor}")]
+        public Task<ActionResult<Request>> CreatePO(Vendor vendor) {
+            if (vendor is null) {
+                throw new ArgumentNullException(nameof(vendor));
+            }
+            var approved = _context.RequestLines.Where(r => r.Request.Status == StatusApproved).ToList();
+            var price = approved.Sum(a => (a.Product.Price * a.Quantity) / 30);
+            return _context.RequestLines.SingleOrDefault(vendor);
+        }
+
     }
 }
