@@ -122,5 +122,6 @@ namespace CapstonePRS.Controllers {
         public IEnumerable<Request> GetReviewsNotOwn(int userID) {
             return _context.Requests.Where(r => r.UserId != userID && r.Status == StatusReview).ToList();
         }
+        
     }
 }

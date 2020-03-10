@@ -17,7 +17,7 @@ namespace CapstonePRS.Controllers {
         public UsersController(CapstonePRSContext context) {
             _context = context;
         }
-
+  
         // GET: api/Users
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUser() {
@@ -44,7 +44,6 @@ namespace CapstonePRS.Controllers {
             if (id != user.Id) {
                 return BadRequest();
             }
-
             _context.Entry(user).State = EntityState.Modified;
 
             try {
@@ -91,18 +90,33 @@ namespace CapstonePRS.Controllers {
 
         //if errors occur may need to be async and will have to create a var with await in it
 
-        [HttpGet(("login/{username}"))]
+        [HttpGet(("login/{username}/{password}"))]
         public User Login(string username, string password) {
             try {
                 return _context.Users.SingleOrDefault(u => u.Username == username && u.Password == password);
             } catch (ArgumentNullException ex) {
                 throw new Exception("Cannot be null", ex);
-            }catch (InvalidOperationException ex) {
+            } catch (InvalidOperationException ex) {
                 throw new Exception("Invalid username or password", ex);
-            }catch (Exception) {
+            } catch (Exception) {
                 throw;
             }
 
         }
+        [HttpGet(("getpassword/{email}"))]
+        public string GetPassword(string email) {
+            try {
+                var user = _context.Users.SingleOrDefault(u => u.Email == email);
+                return user.Password;
+            } catch (ArgumentNullException ex) {
+                throw new Exception("Cannot be null", ex);
+            } catch (InvalidOperationException ex) {
+                throw new Exception("Invalid entry, please make sure you have entered the correct information and try again", ex);
+            } catch (Exception) {
+                throw;
+            }
+        }
+            
+
     }
 }

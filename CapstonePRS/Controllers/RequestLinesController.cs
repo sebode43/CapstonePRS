@@ -21,6 +21,10 @@ namespace CapstonePRS.Controllers
             _context = context;
         }
 
+        private static void QuantityException(RequestLine requestLine) {
+            if (requestLine.Quantity < 1) throw new Exception("Quantity must be greater than 0");
+        }
+
         // GET: api/RequestLines
         [HttpGet]
         public async Task<ActionResult<IEnumerable<RequestLine>>> GetRequestLine()
@@ -46,29 +50,20 @@ namespace CapstonePRS.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutRequestLine(int id, RequestLine requestLine)
-        {
-            if (id != requestLine.Id)
-            {
+        public async Task<IActionResult> PutRequestLine(int id, RequestLine requestLine) {
+            if (id != requestLine.Id) {
                 return BadRequest();
             }
-            if (requestLine.Quantity < 1) throw new Exception("Quantity must be greater than 0");
-
+            QuantityException(requestLine);
             _context.Entry(requestLine).State = EntityState.Modified;
 
-            try
-            {
+            try {
                 await _context.SaveChangesAsync();
                 RecalcRequestTotal(requestLine.RequestId);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!RequestLineExists(id))
-                {
+            } catch (DbUpdateConcurrencyException) {
+                if (!RequestLineExists(id)) {
                     return NotFound();
-                }
-                else
-                {
+                } else {
                     throw;
                 }
             }
@@ -81,7 +76,7 @@ namespace CapstonePRS.Controllers
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
         public async Task<ActionResult<RequestLine>> PostRequestLine(RequestLine requestLine) {
-            if (requestLine.Quantity < 1) throw new Exception("Quantity must be greater than 0");
+            QuantityException(requestLine);
 
             _context.RequestLines.Add(requestLine);
             await _context.SaveChangesAsync();
@@ -118,6 +113,15 @@ namespace CapstonePRS.Controllers
             var total = lines.Sum(rl => rl.Quantity * rl.Product.Price);
             request.Total = total;
             _context.SaveChanges();
+        }
+
+        public string StatusApproved = "APPROVED";
+
+        [HttpGet("PO")]
+        public Task<ActionResult<IEnumerable<RequestLine>>> CreatePO() {
+            var approved = _context.RequestLines.Where(r => r.Request.Status == StatusApproved).ToList();
+            var price = approved.Sum(a => a.Product.Price * a.Quantity * .30);
+
         }
     }
 }
