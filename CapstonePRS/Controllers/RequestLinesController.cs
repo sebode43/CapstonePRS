@@ -84,8 +84,8 @@ namespace CapstonePRS.Controllers
             if (requestLine.Quantity < 1) throw new Exception("Quantity must be greater than 0");
 
             _context.RequestLines.Add(requestLine);
-            RecalcRequestTotal(requestLine.RequestId);
             await _context.SaveChangesAsync();
+            RecalcRequestTotal(requestLine.RequestId);
 
             return CreatedAtAction("GetRequestLine", new { id = requestLine.Id }, requestLine);
         }
@@ -101,8 +101,8 @@ namespace CapstonePRS.Controllers
             }
 
             _context.RequestLines.Remove(requestLine);
-            RecalcRequestTotal(requestLine.RequestId);
             await _context.SaveChangesAsync();
+            RecalcRequestTotal(requestLine.RequestId);
 
             return requestLine;
         }
@@ -118,7 +118,6 @@ namespace CapstonePRS.Controllers
             var total = lines.Sum(rl => rl.Quantity * rl.Product.Price);
             request.Total = total;
             _context.SaveChanges();
-        }
         }
     }
 }
