@@ -106,6 +106,16 @@ namespace CapstonePRS.Controllers
         {
             return _context.Vendors.Any(e => e.Id == id);
         }
-        
+
+        public string StatusApproved { get; private set; }
+        [HttpGet("PO/{name}")]
+        public async Task<ActionResult<Vendor>> CreatePO(string name) {
+            if (name is null) {
+                throw new ArgumentNullException(nameof(name));
+            }
+            var approved = await _context.RequestLines.Where(r => r.Request.Status == StatusApproved).ToListAsync();
+            var price = approved.Sum(a => (a.Product.Price * a.Quantity) / 30);
+            return _context.Vendors.SingleOrDefault(v => v.Name == name);
+        }
     }
 }

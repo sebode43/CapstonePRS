@@ -91,9 +91,9 @@ namespace CapstonePRS.Controllers {
         //if errors occur may need to be async and will have to create a var with await in it
 
         [HttpGet(("login/{username}/{password}"))]
-        public User Login(string username, string password) {
+        public async Task<ActionResult<User>> Login(string username, string password) {
             try {
-                return _context.Users.SingleOrDefault(u => u.Username == username && u.Password == password);
+                return await _context.Users.SingleOrDefaultAsync(u => u.Username == username && u.Password == password);
             } catch (ArgumentNullException ex) {
                 throw new Exception("Cannot be null", ex);
             } catch (InvalidOperationException ex) {
@@ -104,9 +104,9 @@ namespace CapstonePRS.Controllers {
 
         }
         [HttpGet(("getpassword/{email}"))]
-        public string GetPassword(string email) {
+        public async Task<ActionResult<string>> GetPassword(string email) {
             try {
-                var user = _context.Users.SingleOrDefault(u => u.Email == email);
+                var user = await _context.Users.SingleOrDefaultAsync(u => u.Email == email);
                 return user.Password;
             } catch (ArgumentNullException ex) {
                 throw new Exception("Cannot be null", ex);

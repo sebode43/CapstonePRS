@@ -95,42 +95,39 @@ namespace CapstonePRS.Controllers {
         public const string StatusRejected = "REJECTED";
 
         [HttpPost("review")]
-        public Task<ActionResult<Request>> Review(Request request) {
+        public async Task<ActionResult<Request>> Review(Request request) {
             if (request.Total <= 50) {
                 request.Status = StatusApproved;
             } else {
                 request.Status = StatusReview;
             }
-            return PostRequest(request);
+            return await PostRequest(request);
         }
         [HttpPost("approve")]
-        public Task<ActionResult<Request>> Approve(Request request) {
+        public async Task<ActionResult<Request>> Approve(Request request) {
             request.Status = StatusApproved;
-            return PostRequest(request);
+            return await PostRequest(request);
         }
         [HttpPost("reject")]
-        public Task<ActionResult<Request>> Reject(Request request) {
+        public async Task<ActionResult<Request>> Reject(Request request) {
             request.Status = StatusRejected;
             if (request.RejectionReason == null) throw new Exception("Cannot be null");
-            return PostRequest(request);
+            return await PostRequest(request);
         }
         /* public bool RejectReasonRequired(Request request) {
             var status = request.Status == StatusRejected;
             return request.RejectionReason != null;
         } */
         [HttpGet("reviews/{id}")]
-        public IEnumerable<Request> GetReviewsNotOwn(int userID) {
-            return _context.Requests.Where(r => r.UserId != userID && r.Status == StatusReview).ToList();
-        }
-        [HttpGet("PO/{vendor}")]
-        public Task<ActionResult<Request>> CreatePO(Vendor vendor) {
-            if (vendor is null) {
-                throw new ArgumentNullException(nameof(vendor));
-            }
-            var approved = _context.RequestLines.Where(r => r.Request.Status == StatusApproved).ToList();
-            var price = approved.Sum(a => (a.Product.Price * a.Quantity) / 30);
-            return _context.RequestLines.SingleOrDefault(vendor);
-        }
+        public async Task<ActionResult<IEnumerable<Request>>> GetReviewsNotOwn(int userID) {
+            var request = await _context.Requests.Where(r => r.UserId != userID && r.Status == StatusReview).ToListAsync();
 
+            if (request == null) {
+                return NotFound();
+            }
+
+            return request;
+        }
+       
     }
 }
