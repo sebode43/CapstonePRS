@@ -12,30 +12,25 @@ namespace CapstonePRS.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class VendorsController : ControllerBase
-    {
+    public class VendorsController : ControllerBase {
         private readonly CapstonePRSContext _context;
 
-        public VendorsController(CapstonePRSContext context)
-        {
+        public VendorsController(CapstonePRSContext context) {
             _context = context;
         }
 
         // GET: api/Vendors
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Vendor>>> GetVendor()
-        {
+        public async Task<ActionResult<IEnumerable<Vendor>>> GetVendor() {
             return await _context.Vendors.ToListAsync();
         }
 
         // GET: api/Vendors/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Vendor>> GetVendor(int id)
-        {
+        public async Task<ActionResult<Vendor>> GetVendor(int id) {
             var vendor = await _context.Vendors.FindAsync(id);
 
-            if (vendor == null)
-            {
+            if (vendor == null) {
                 return NotFound();
             }
 
@@ -46,27 +41,19 @@ namespace CapstonePRS.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutVendor(int id, Vendor vendor)
-        {
-            if (id != vendor.Id)
-            {
+        public async Task<IActionResult> PutVendor(int id, Vendor vendor) {
+            if (id != vendor.Id) {
                 return BadRequest();
             }
 
             _context.Entry(vendor).State = EntityState.Modified;
 
-            try
-            {
+            try {
                 await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!VendorExists(id))
-                {
+            } catch (DbUpdateConcurrencyException) {
+                if (!VendorExists(id)) {
                     return NotFound();
-                }
-                else
-                {
+                } else {
                     throw;
                 }
             }
@@ -78,8 +65,7 @@ namespace CapstonePRS.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<Vendor>> PostVendor(Vendor vendor)
-        {
+        public async Task<ActionResult<Vendor>> PostVendor(Vendor vendor) {
             _context.Vendors.Add(vendor);
             await _context.SaveChangesAsync();
 
@@ -88,11 +74,9 @@ namespace CapstonePRS.Controllers
 
         // DELETE: api/Vendors/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Vendor>> DeleteVendor(int id)
-        {
+        public async Task<ActionResult<Vendor>> DeleteVendor(int id) {
             var vendor = await _context.Vendors.FindAsync(id);
-            if (vendor == null)
-            {
+            if (vendor == null) {
                 return NotFound();
             }
 
@@ -102,20 +86,29 @@ namespace CapstonePRS.Controllers
             return vendor;
         }
 
-        private bool VendorExists(int id)
-        {
+        private bool VendorExists(int id) {
             return _context.Vendors.Any(e => e.Id == id);
         }
-
-        public string StatusApproved { get; private set; }
         [HttpGet("PO/{name}")]
-        public async Task<ActionResult<Vendor>> CreatePO(string name) {
+        public async Task<ActionResult<Vendor>> CreatePo(CapstonePRSContext context, string name, int id) {
+            var PoJoin = from v in context.Vendors
+                         join p in context.Products
+                         on v.Id equals p.VendorId
+                         where v.Id == id
+                         join rl in context.RequestLines
+                         on p.Id equals rl.ProductId
+                         join r in context.Requests
+                         on rl.RequestId equals r.Id
+                         select new { Price = p.Price, Status = r.Status, Quantity = rl.Quantity, Name = v.Name };
             if (name is null) {
                 throw new ArgumentNullException(nameof(name));
             }
-            var approved = await _context.RequestLines.Where(r => r.Request.Status == StatusApproved).ToListAsync();
-            var price = approved.Sum(a => (a.Product.Price * a.Quantity) / 30);
+            var approved = await PoJoin.Where(r => r.Status == "APPROVED").ToListAsync();
+            var price = approved.Sum(a => (a.Price * a.Quantity) / 30);
             return _context.Vendors.SingleOrDefault(v => v.Name == name);
         }
+        Dictionary<Product, int> GetPo =
+        new Dictionary<Product, int>();
+
     }
-}
+}//dictionary - productid as key - find the quantity(data) - everytime read line item see if it is in dictionary
