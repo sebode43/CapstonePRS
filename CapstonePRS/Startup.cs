@@ -34,7 +34,7 @@ namespace CapstonePRS {
     });
             services.AddCors(option =>
             option.AddPolicy(DefaultCorsPolicy, x =>
-            x.WithOrigins(AllowOrigins).WithMethods(AllowMethods).AllowAnyHeader()));
+            x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
