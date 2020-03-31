@@ -93,7 +93,9 @@ namespace CapstonePRS.Controllers {
         [HttpGet(("login/{username}/{password}"))]
         public async Task<ActionResult<User>> Login(string username, string password) {
             try {
-                return await _context.Users.SingleOrDefaultAsync(u => u.Username == username && u.Password == password);
+                var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == username && u.Password == password);
+                if (user == null) return NotFound();
+                return user;
             } catch (ArgumentNullException ex) {
                 throw new Exception("Cannot be null", ex);
             } catch (InvalidOperationException ex) {
