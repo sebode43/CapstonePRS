@@ -94,25 +94,25 @@ namespace CapstonePRS.Controllers {
         public const string StatusApproved = "APPROVED";
         public const string StatusRejected = "REJECTED";
 
-        [HttpPost("review")]
-        public async Task<ActionResult<Request>> Review(Request request) {
+        [HttpPut("{id}/review")]
+        public async Task<IActionResult> Review(int id, Request request) {
             if (request.Total <= 50) {
                 request.Status = StatusApproved;
             } else {
                 request.Status = StatusReview;
             }
-            return await PostRequest(request);
+            return await PutRequest(id, request);
         }
-        [HttpPost("approve")]
-        public async Task<ActionResult<Request>> Approve(Request request) {
+        [HttpPut("{id}/approve")]
+        public async Task<IActionResult> Approve(int id, Request request) {
             request.Status = StatusApproved;
-            return await PostRequest(request);
+            return await PutRequest(id, request);
         }
-        [HttpPost("reject")]
-        public async Task<ActionResult<Request>> Reject(Request request) {
+        [HttpPut("{id}/reject")]
+        public async Task<IActionResult> Reject(int id, Request request) {
             request.Status = StatusRejected;
             if (request.RejectionReason == null) throw new Exception("Cannot be null");
-            return await PostRequest(request);
+            return await PutRequest(id, request);
         }
         /* public bool RejectReasonRequired(Request request) {
             var status = request.Status == StatusRejected;
