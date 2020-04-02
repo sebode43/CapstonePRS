@@ -118,7 +118,7 @@ namespace CapstonePRS.Controllers {
             var status = request.Status == StatusRejected;
             return request.RejectionReason != null;
         } */
-        [HttpGet("reviews/{id}")]
+        [HttpGet("reviews/{userId}")]
         public async Task<ActionResult<IEnumerable<Request>>> GetReviewsNotOwn(int userID) {
             var request = await _context.Requests.Where(r => r.UserId != userID && r.Status == StatusReview).ToListAsync();
 
